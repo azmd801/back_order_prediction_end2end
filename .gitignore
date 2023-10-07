@@ -140,3 +140,6 @@ dmypy.json
 .pyre/
 
 .gitignore
+folder_structure.txt
+Back_order_prediction_end2end.egg-info
+main.py

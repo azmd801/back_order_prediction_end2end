@@ -23,6 +23,9 @@ training_pipeline_config: TrainingPipelineConfig = TrainingPipelineConfig()
 
 @dataclass
 class DataIngestionConfig:
+   
+
+
     data_ingestion_dir: str = os.path.join(
         training_pipeline_config.artifact_dir, DATA_INGESTION_DIR_NAME
     )

@@ -13,7 +13,7 @@ def error_message_detail(error, error_detail: sys):
     return error_message
 
 
-class SensorException(Exception):
+class BackOrderException(Exception):
     def __init__(self, error_message, error_detail):
         """
         :param error_message: error message in string format

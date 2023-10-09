@@ -6,13 +6,13 @@ import sys
 # from source.components.model_evaluation import ModelEvaluation
 # from source.components.model_pusher import ModelPusher
 # from source.components.model_trainer import ModelTrainer
-# from source.entity.artifact_entity import (
-#     DataIngestionArtifact,
+from source.entity.artifact_entity import (
+    DataIngestionArtifact,
 #     DataTransformationArtifact,
 #     DataValidationArtifact,
 #     ModelEvaluationArtifact,
 #     ModelTrainerArtifact,
-# )
+)
 from source.entity.config_entity import (
     DataIngestionConfig
     # DataTransformationConfig,
@@ -39,7 +39,7 @@ class TrainPipeline:
 
         # self.model_pusher_config = ModelPusherConfig()
 
-    def start_data_ingestion(self):
+    def start_data_ingestion(self) -> DataIngestionArtifact:
         try:
             pass
         except Exception as e:
@@ -48,7 +48,8 @@ class TrainPipeline:
 
     def start_data_ingestion(self):
         try:
-            pass
+            logging.info("Data ingestion started")
+            logging.info("Data ingestion completed")
         except Exception as e:
             raise BackOrderException(e, sys) from e 
 
@@ -78,6 +79,7 @@ class TrainPipeline:
 
     def run_pipeline(self):
         try:
+            data_ingestion_artifact: DataIngestionArtifact = self.start_data_ingestion()
             pass
         except Exception as e:
             raise BackOrderException(e, sys) from e     

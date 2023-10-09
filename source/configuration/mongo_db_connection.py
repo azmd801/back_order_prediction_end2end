@@ -6,7 +6,7 @@ import pymongo
 
 from source.constants.database import DATABASE_NAME
 from source.constants.env_variable import MONGODB_URL_KEY
-from source.exception import SensorException
+from source.exception import BackOrderException
 
 ca = certifi.where()
 
@@ -31,4 +31,4 @@ class MongoDBClient:
 
         except Exception as e:
             
-            raise SensorException(e, sys)
+            raise BackOrderException(e, sys)

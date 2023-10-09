@@ -1,4 +1,5 @@
 pymongo==4.5.0
 certifi
 from_root
+pandas
 -e .

@@ -39,14 +39,8 @@ class TrainPipeline:
 
         # self.model_pusher_config = ModelPusherConfig()
 
-    def start_data_ingestion(self) -> DataIngestionArtifact:
-        try:
-            pass
-        except Exception as e:
-            raise BackOrderException(e, sys) from e
 
-
-    def start_data_ingestion(self):
+    def start_data_ingestion(self)-> DataIngestionArtifact:
         try:
             logging.info("Data ingestion started")
             logging.info("Data ingestion completed")

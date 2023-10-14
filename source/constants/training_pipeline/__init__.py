@@ -28,7 +28,7 @@ SCHEMA_DROP_COLS = "drop_columns"
 """
 Data Ingestion related constant start with DATA_INGESTION VAR NAME
 """
-DATA_INGESTION_COLLECTION_NAME: str = "back_order_prediction"
+DATA_INGESTION_COLLECTION_NAME: str = "back_orders"
 
 DATA_INGESTION_DIR_NAME: str = "data_ingestion"
 

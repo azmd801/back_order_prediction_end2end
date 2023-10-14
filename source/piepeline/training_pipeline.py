@@ -1,6 +1,6 @@
 import sys
 
-# from source.components.data_ingestion import DataIngestion
+from source.components.data_ingestion import DataIngestion
 # from source.components.data_transformation import DataTransformation
 # from source.components.data_validation import DataValidation
 # from source.components.model_evaluation import ModelEvaluation
@@ -42,10 +42,29 @@ class TrainPipeline:
 
     def start_data_ingestion(self)-> DataIngestionArtifact:
         try:
-            logging.info("Data ingestion started")
-            logging.info("Data ingestion completed")
+            logging.info(
+                "Entered the start_data_ingestion method of TrainPipeline class"
+            )
+
+            logging.info("Getting the data from mongodb")
+
+            data_ingestion = DataIngestion(
+                data_ingestion_config=self.data_ingestion_config
+            )
+
+            data_ingestion_artifact = data_ingestion.initiate_data_ingestion()
+
+            logging.info("Got the train_set and test_set from mongodb")
+
+            logging.info(
+                "Exited the start_data_ingestion method of TrainPipeline class"
+            )
+
+            return data_ingestion_artifact
+
         except Exception as e:
-            raise BackOrderException(e, sys) from e 
+            raise BackOrderException(e, sys) from e
+ 
 
     def start_data_validation(self):
         try:
@@ -74,6 +93,6 @@ class TrainPipeline:
     def run_pipeline(self):
         try:
             data_ingestion_artifact: DataIngestionArtifact = self.start_data_ingestion()
-            pass
+
         except Exception as e:
             raise BackOrderException(e, sys) from e     

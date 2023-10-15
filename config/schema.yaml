@@ -1,0 +1,60 @@
+columns:
+  - sku: int
+  - national_inv: float
+  - lead_time: float
+  - in_transit_qty: float
+  - forecast_3_month: float
+  - forecast_6_month: float
+  - forecast_9_month: float
+  - sales_1_month: float
+  - sales_3_month: float
+  - sales_6_month: float
+  - sales_9_month: float
+  - min_bank: float
+  - potential_issue: object
+  - pieces_past_due: float
+  - perf_6_month_avg: float
+  - perf_12_month_avg: float
+  - local_bo_qty: float
+  - deck_risk: object
+  - oe_constraint: object
+  - ppap_risk: object
+  - stop_auto_buy: object
+  - rev_stop: object
+  - went_on_backorder: object
+
+numerical:
+  - sku
+  - national_inv
+  - lead_time
+  - forecast_3_month
+  - forecast_6_month
+  - forecast_9_month
+  - sales_1_month
+  - sales_3_month
+  - sales_6_month
+  - sales_9_month
+  - min_bank
+  - pieces_past_due
+  - perf_6_month_avg
+  - perf_12_month_avg
+  - local_bo_qty
+
+categorical:
+  - potential_issue
+  - deck_risk
+  - oe_constraint
+  - ppap_risk
+  - stop_auto_buy
+  - rev_stop
+  - went_on_backorder
+
+drop_columns:
+  - sku
+  - in_transit_qty
+  - local_bo_qty
+  - pieces_past_due
+  - potential_issue
+  - oe_constraint
+  - rev_stop
+  - went_on_backorder

@@ -3,5 +3,8 @@ certifi
 from_root
 pandas
 scikit-learn
+numpy
+dill
+pyyaml
 
 -e .

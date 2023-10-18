@@ -7,5 +7,6 @@ numpy
 dill
 pyyaml
 scipy
+imblearn
 
 -e .

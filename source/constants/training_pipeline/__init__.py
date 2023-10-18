@@ -3,7 +3,7 @@ import os
 
 from source.constants.s3_bucket import TRAINING_BUCKET_NAME
 
-TARGET_COLUMN = "class"
+TARGET_COLUMN = "went_on_backorder"
 
 PIPELINE_NAME: str = "back_order_prediction"
 

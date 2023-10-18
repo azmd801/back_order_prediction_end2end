@@ -108,10 +108,10 @@ class DataIngestion:
 
             logging.info("Got the data from mongodb")
 
-            _schema_config = read_yaml_file(file_path=SCHEMA_FILE_PATH)
+            # _schema_config = read_yaml_file(file_path=SCHEMA_FILE_PATH)
 
-            dataframe = dataframe.drop(_schema_config[SCHEMA_DROP_COLS], axis=1)
-            logging.info("Useless features droped out before train test split")
+            # dataframe = dataframe.drop(_schema_config[SCHEMA_DROP_COLS], axis=1)
+            # logging.info("Useless features droped out before train test split")
            
             self.split_data_as_train_test(dataframe)
 

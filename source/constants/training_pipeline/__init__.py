@@ -23,6 +23,8 @@ MODEL_FILE_NAME = "model.pkl"
 
 SCHEMA_FILE_PATH = os.path.join("config", "schema.yaml")
 
+PREPROCESSING_CONFIG_FILE_PATH = os.path.join("config","preprocessing.yaml")
+
 SCHEMA_DROP_COLS = "drop_columns"
 
 """

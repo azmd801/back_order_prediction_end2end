@@ -1,21 +1,21 @@
 import sys
 
 from source.components.data_ingestion import DataIngestion
-# from source.components.data_transformation import DataTransformation
+from source.components.data_transformation import DataTransformation
 from source.components.data_validation import DataValidation
 # from source.components.model_evaluation import ModelEvaluation
 # from source.components.model_pusher import ModelPusher
 # from source.components.model_trainer import ModelTrainer
 from source.entity.artifact_entity import (
     DataIngestionArtifact,
-#     DataTransformationArtifact,
+    DataTransformationArtifact,
     DataValidationArtifact,
 #     ModelEvaluationArtifact,
 #     ModelTrainerArtifact,
 )
 from source.entity.config_entity import (
     DataIngestionConfig,
-    # DataTransformationConfig,
+    DataTransformationConfig,
     DataValidationConfig,
     # ModelEvaluationConfig,
     # ModelPusherConfig,
@@ -31,7 +31,7 @@ class TrainPipeline:
 
         self.data_validation_config = DataValidationConfig()
 
-        # self.data_transformation_config = DataTransformationConfig()
+        self.data_transformation_config = DataTransformationConfig()
 
         # self.model_trainer_config = ModelTrainerConfig()
 
@@ -90,11 +90,23 @@ class TrainPipeline:
         except Exception as e:
             raise BackOrderException(e, sys) from e
 
-    def start_data_trasformation(self):
+    def start_data_transformation(
+        self, data_validation_artifact: DataValidationArtifact
+    ) -> DataTransformationArtifact:
         try:
-            pass
+            data_transformation = DataTransformation(
+                data_validation_artifact, self.data_transformation_config
+            )
+
+            data_transformation_artifact = (
+                data_transformation.initiate_data_transformation()
+            )
+
+            return data_transformation_artifact
+
         except Exception as e:
-            raise BackOrderException(e, sys) from e   
+            raise BackOrderException(e, sys)
+ 
 
     def start_model_trainer(self):
         try:
@@ -114,7 +126,11 @@ class TrainPipeline:
             
             data_validation_artifact = self.start_data_validation(
                 data_ingestion_artifact
-            )            
+            )      
+
+            data_transformation_artifact = self.start_data_transformation(
+                data_validation_artifact
+            )      
 
         except Exception as e:
             raise BackOrderException(e, sys) from e     

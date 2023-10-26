@@ -19,9 +19,13 @@ TEST_FILE_NAME: str = "test.csv"
 
 PREPROCSSING_OBJECT_FILE_NAME = "preprocessing.pkl"
 
+LABEL_ENCODER_OBJECT_FILE_NAME = "label_encoder.pkl"
+
 MODEL_FILE_NAME = "model.pkl"
 
 SCHEMA_FILE_PATH = os.path.join("config", "schema.yaml")
+
+MODEL_CONFIG_FILE_PATH = os.path.join("config", "model.yaml")
 
 PREPROCESSING_CONFIG_FILE_PATH = os.path.join("config","preprocessing.yaml")
 
@@ -85,3 +89,15 @@ MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE: float = 0.02
 MODEL_PUSHER_BUCKET_NAME = TRAINING_BUCKET_NAME
 
 MODEL_PUSHER_S3_KEY = "model-registry"
+
+"""
+model relted constants
+"""
+MODULE_OF_MODEL = 'module'
+
+CLASS_OF_MODEL = 'class'
+
+TUNED_PARAMS_OF_MODEL = 'params'
+
+
+

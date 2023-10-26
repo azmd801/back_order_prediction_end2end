@@ -57,4 +57,3 @@ drop_columns:
   - potential_issue
   - oe_constraint
   - rev_stop
-  - went_on_backorder

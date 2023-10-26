@@ -21,7 +21,7 @@ from source.logger import logging
 from source.utils import save_numpy_array_data, save_object
 from source.utils import read_yaml_file
 from source.constants.training_pipeline import SCHEMA_DROP_COLS, SCHEMA_FILE_PATH
-from sklearn.preprocessing import StandardScaler,pipeline,OneHotEncoder,LabelEncoder
+from sklearn.preprocessing import StandardScaler,OneHotEncoder,LabelEncoder
 
 
 class DataTransformation:
@@ -64,7 +64,7 @@ class DataTransformation:
 
             df = df.drop(self._schema_config[SCHEMA_DROP_COLS], axis=1)
 
-            logging.info("Features droped out:",self._schema_config[SCHEMA_DROP_COLS])
+            logging.info(f"Features droped out:{self._schema_config[SCHEMA_DROP_COLS]}")
 
             return df
 
@@ -81,7 +81,7 @@ class DataTransformation:
             logging.info("Got numerical cols from schema config")
 
             numerical_cols = list(
-                set(self._schema_config["numerical"]) - set(self._schema_config["drop"])
+                set(self._schema_config["numerical"]) - set(self._schema_config[SCHEMA_DROP_COLS])
                 )
 
             logging.info(f"Numerical cols: {numerical_cols}")
@@ -89,7 +89,7 @@ class DataTransformation:
             logging.info("Got categorical cols from schema config")
 
             categorical_cols = list(
-                set(self._schema_config["categorical"]) - set(self._schema_config["drop"]) -{TARGET_COLUMN}
+                set(self._schema_config["categorical"]) - set(self._schema_config[SCHEMA_DROP_COLS]) -{TARGET_COLUMN}
                 )
             
             logging.info(f"Categorical cols: {categorical_cols}")
@@ -139,8 +139,6 @@ class DataTransformation:
                 "Exited get_data_transformer_object method of DataTransformation class"
             )
             
-            # transforming target column
-
 
             return input_preprocessor
 
@@ -159,11 +157,12 @@ class DataTransformation:
             # getting train and test data set
             train_df = DataTransformation.read_data(
                 self.data_validation_artifact.valid_train_file_path
-            )
+            )[:1000]#for testing purpos only
 
             test_df = DataTransformation.read_data(
                 file_path=self.data_validation_artifact.valid_test_file_path
-            )
+            )[:1000]#for testing purpose only
+
             # dropping unnecessary features
             logging.info("dropping unnecessary features from train data set")
 
@@ -174,6 +173,8 @@ class DataTransformation:
             test_df = self.drop_columns(test_df)
 
             # getting train and target features
+            # logging.info(f"trainging feature from train data set:{train_df.columns}")
+
             input_feature_train_df = train_df.drop(columns=[TARGET_COLUMN], axis=1)
 
             target_feature_train_df = train_df[TARGET_COLUMN]
@@ -204,12 +205,15 @@ class DataTransformation:
 
             # transforming the taget feature
             logging.info("Using the LabelEncoder to transform  input and test target feature")
+            logging.info("Initializing the LabelEncoder")
 
-            target_feature_train_arr = LabelEncoder.fit_transform(target_feature_train_df)
+            label_encoder = LabelEncoder()
+
+            target_feature_train_arr = label_encoder.fit_transform(target_feature_train_df)
 
             logging.info("Applied LabelEncoder on training feature")
 
-            target_feature_test_arr = LabelEncoder.transform(target_feature_test_df)
+            target_feature_test_arr = label_encoder.transform(target_feature_test_df)
 
             logging.info("Applied LabelEncoder on test feature")
 
@@ -233,9 +237,14 @@ class DataTransformation:
             ]
 
             save_object(
-                self.data_transformation_config.transformed_object_file_path,
+                self.data_transformation_config.preprocessor_object_file_path,
                 preprocessor,
             )
+
+            save_object(
+                self.data_transformation_config.label_encoder_object_file_path,
+                label_encoder,
+            )            
 
             save_numpy_array_data(
                 self.data_transformation_config.transformed_train_file_path,
@@ -247,14 +256,15 @@ class DataTransformation:
                 array=test_arr,
             )
 
-            logging.info("Saved the preprocessor object")
+            logging.info("Saved the preprocessor and label_encoder object")
 
             logging.info(
                 "Exited initiate_data_transformation method of Data_Transformation class"
             )
 
             data_transformation_artifact = DataTransformationArtifact(
-                transformed_object_file_path=self.data_transformation_config.transformed_object_file_path,
+                preprocessor_object_file_path=self.data_transformation_config.preprocessor_object_file_path,
+                label_encoder_object_file_path=self.data_transformation_config.label_encoder_object_file_path,
                 transformed_train_file_path=self.data_transformation_config.transformed_train_file_path,
                 transformed_test_file_path=self.data_transformation_config.transformed_test_file_path,
             )

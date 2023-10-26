@@ -23,8 +23,28 @@ class DataValidationArtifact:
 
 @dataclass
 class DataTransformationArtifact:
-    transformed_object_file_path: str
+    preprocessor_object_file_path: str
+    
+    label_encoder_object_file_path: str
 
     transformed_train_file_path: str
 
     transformed_test_file_path: str
+
+@dataclass
+class ClassificationMetricArtifact:
+    f1_score: float
+
+    precision_score: float
+
+    recall_score: float
+
+    balanced_accuracy_score: float
+
+    roc_auc_score: float
+
+@dataclass
+class ModelTrainerArtifact:
+    trained_model_file_path: str
+
+    metric_artifact: ClassificationMetricArtifact

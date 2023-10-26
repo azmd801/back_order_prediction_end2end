@@ -8,5 +8,6 @@ dill
 pyyaml
 scipy
 imblearn
+xgboost
 
 -e .

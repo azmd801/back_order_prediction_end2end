@@ -4,7 +4,7 @@ from source.components.data_ingestion import DataIngestion
 from source.components.data_transformation import DataTransformation
 from source.components.data_validation import DataValidation
 from source.components.model_evaluation import ModelEvaluation
-# from source.components.model_pusher import ModelPusher
+from source.components.model_pusher import ModelPusher
 from source.components.model_trainer import ModelTrainer
 from source.entity.artifact_entity import (
     DataIngestionArtifact,
@@ -18,7 +18,7 @@ from source.entity.config_entity import (
     DataTransformationConfig,
     DataValidationConfig,
     ModelEvaluationConfig,
-    # ModelPusherConfig,
+    ModelPusherConfig,
     ModelTrainerConfig,
 )
 from source.exception import BackOrderException
@@ -37,7 +37,7 @@ class TrainPipeline:
 
         self.model_evaluation_config = ModelEvaluationConfig()
 
-        # self.model_pusher_config = ModelPusherConfig()
+        self.model_pusher_config = ModelPusherConfig()
 
 
     def start_data_ingestion(self)-> DataIngestionArtifact:
@@ -147,11 +147,21 @@ class TrainPipeline:
             raise BackOrderException(e, sys)
 
 
-    def start_model_pusher(self):
+    def start_model_pusher(self, model_evaluation_artifact: ModelEvaluationArtifact):
+        """
+        """
         try:
-            pass
+            model_pusher = ModelPusher(
+                model_pusher_config=self.model_pusher_config,
+                model_eval_artifact = model_evaluation_artifact
+            )
+
+            model_pusher_artifact = model_pusher.initiate_model_pusher()
+
+            return model_pusher_artifact
+        
         except Exception as e:
-            raise BackOrderException(e, sys) from e  
+            raise BackOrderException(e, sys) 
 
     def run_pipeline(self):
         try:
@@ -175,7 +185,13 @@ class TrainPipeline:
             if not model_evaluation_artifact.is_model_accepted:
                 logging.info(f"Model not accepted.")
 
-                return None            
+                logging.info(f"Exiting the training pipeline")
+
+                return None   
+            
+            model_pusher_artifact = self.start_model_pusher(model_evaluation_artifact)
+
+            logging.info(f"Exiting the training pipeline")         
 
         except Exception as e:
             raise BackOrderException(e, sys) from e     

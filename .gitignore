@@ -145,3 +145,4 @@ Back_order_prediction_end2end.egg-info
 main.py
 upload_to_mongoDB
 notebook
+saved_models

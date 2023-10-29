@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 from imblearn.combine import SMOTETomek
-from source.ml.pre_processing import Winsorizer
+from source.ml.pre_processing import Winsorizer,drop_columns
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -54,19 +54,6 @@ class DataTransformation:
         except Exception as e:
             raise BackOrderException(e, sys)
         
-    def drop_columns(self, df: pd.DataFrame) -> pd.DataFrame:
-            """
-            will drop unneccesary columns before data transformation
-            """
-            # _schema_config = read_yaml_file(file_path=SCHEMA_FILE_PATH)
-
-            # logging.info("Dropping not so usefull features")   
-
-            df = df.drop(self._schema_config[SCHEMA_DROP_COLS], axis=1)
-
-            logging.info(f"Features droped out:{self._schema_config[SCHEMA_DROP_COLS]}")
-
-            return df
 
 
     def get_data_transformer_object(self) -> Pipeline:
@@ -166,11 +153,11 @@ class DataTransformation:
             # dropping unnecessary features
             logging.info("dropping unnecessary features from train data set")
 
-            train_df = self.drop_columns(train_df)
+            train_df = drop_columns(train_df)
 
             logging.info("dropping unnecessary features from test data set")
             
-            test_df = self.drop_columns(test_df)
+            test_df = drop_columns(test_df)
 
             # getting train and target features
             # logging.info(f"trainging feature from train data set:{train_df.columns}")

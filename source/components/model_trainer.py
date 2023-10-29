@@ -50,14 +50,20 @@ class ModelTrainer:
 
             model.fit(x_train,y_train)
 
-            model_metrics : ClassificationMetricArtifact  = calculate_metric(model,x_test,y_test)
+            model_train_metrics : ClassificationMetricArtifact  = calculate_metric(model,x_train,y_train)
+
+            model_test_metrics : ClassificationMetricArtifact  = calculate_metric(model,x_test,y_test)
 
             if (
-                model_metrics.balanced_accuracy_score < self.model_trainer_config.expected_accuracy
+                model_test_metrics.balanced_accuracy_score < self.model_trainer_config.expected_accuracy
             ):
-                logging.info("No best model found with score more than base score")
+                logging.info("No best model found with test score more than base score")
 
-                raise Exception("No best model found with score more than base score")
+                raise Exception("No best model found with test score more than base score")
+            
+            logging.info(f"Best model found with test score: {model_test_metrics.balanced_accuracy_score}")
+            
+            logging.info(f"Best model found with train score: {model_train_metrics.balanced_accuracy_score}")
             
             preprocessing_obj = load_object(
                 file_path=self.data_transformation_artifact.preprocessor_object_file_path
@@ -76,13 +82,11 @@ class ModelTrainer:
 
             save_object(self.model_trainer_config.trained_model_file_path, backOrder_prediction_model)
 
-            metric_artifact = calculate_metric(
-                model=model, x=x_test, y=y_test
-            )
 
             model_trainer_artifact = ModelTrainerArtifact(
                 trained_model_file_path=self.model_trainer_config.trained_model_file_path,
-                metric_artifact=metric_artifact,
+                train_metric_artifact=model_train_metrics,
+                test_metric_artifact=model_test_metrics,
             )
 
             logging.info(f"Model trainer artifact: {model_trainer_artifact}")

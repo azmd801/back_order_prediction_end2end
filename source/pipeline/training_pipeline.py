@@ -3,21 +3,21 @@ import sys
 from source.components.data_ingestion import DataIngestion
 from source.components.data_transformation import DataTransformation
 from source.components.data_validation import DataValidation
-# from source.components.model_evaluation import ModelEvaluation
+from source.components.model_evaluation import ModelEvaluation
 # from source.components.model_pusher import ModelPusher
 from source.components.model_trainer import ModelTrainer
 from source.entity.artifact_entity import (
     DataIngestionArtifact,
     DataTransformationArtifact,
     DataValidationArtifact,
-#     ModelEvaluationArtifact,
+    ModelEvaluationArtifact,
     ModelTrainerArtifact,
 )
 from source.entity.config_entity import (
     DataIngestionConfig,
     DataTransformationConfig,
     DataValidationConfig,
-    # ModelEvaluationConfig,
+    ModelEvaluationConfig,
     # ModelPusherConfig,
     ModelTrainerConfig,
 )
@@ -35,7 +35,7 @@ class TrainPipeline:
 
         self.model_trainer_config = ModelTrainerConfig()
 
-        # self.model_evaluation_config = ModelEvaluationConfig()
+        self.model_evaluation_config = ModelEvaluationConfig()
 
         # self.model_pusher_config = ModelPusherConfig()
 
@@ -124,6 +124,28 @@ class TrainPipeline:
 
         except Exception as e:
             raise BackOrderException(e, sys) 
+        
+    def start_model_evaluation(
+        self,
+        data_validation_artifact: DataValidationArtifact,
+        data_transformation_artifact:DataTransformationArtifact,
+        model_trainer_artifact: ModelTrainerArtifact,
+    ) -> ModelEvaluationArtifact:
+        try:
+            model_evaluation = ModelEvaluation(
+                model_eval_config=self.model_evaluation_config,
+                data_validation_artifact=data_validation_artifact,
+                data_transformation_artifact=data_transformation_artifact,
+                model_trainer_artifact=model_trainer_artifact,
+            )
+
+            model_evaluation_artifact = model_evaluation.initiate_model_evaluation()
+
+            return model_evaluation_artifact
+
+        except Exception as e:
+            raise BackOrderException(e, sys)
+
 
     def start_model_pusher(self):
         try:
@@ -145,7 +167,15 @@ class TrainPipeline:
 
             model_trainer_artifact = self.start_model_trainer(
                 data_transformation_artifact
-            )            
+            )
+            model_evaluation_artifact = self.start_model_evaluation(
+                data_validation_artifact, data_transformation_artifact, model_trainer_artifact,
+            )
+
+            if not model_evaluation_artifact.is_model_accepted:
+                logging.info(f"Model not accepted.")
+
+                return None            
 
         except Exception as e:
             raise BackOrderException(e, sys) from e     

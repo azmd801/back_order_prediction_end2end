@@ -1,6 +1,10 @@
 from sklearn.base import TransformerMixin
 import numpy as np
-
+from source.utils import read_yaml_file
+from source.constants.training_pipeline import SCHEMA_DROP_COLS, SCHEMA_FILE_PATH
+from source.exception import BackOrderException
+from source.logger import logging
+import pandas as pd
 ## custom class with fit and tranform to perform winsorization
 
 class Winsorizer(TransformerMixin):
@@ -64,3 +68,15 @@ class Winsorizer(TransformerMixin):
         - output_features (array-like): Transformed feature names.
         """
         return input_features
+    
+def drop_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    will drop unneccesary columns before data transformation
+     """
+    _schema_config = read_yaml_file(file_path=SCHEMA_FILE_PATH) 
+
+    df = df.drop(_schema_config[SCHEMA_DROP_COLS], axis=1)
+
+    logging.info(f"Features droped out:{_schema_config[SCHEMA_DROP_COLS]}")
+
+    return df

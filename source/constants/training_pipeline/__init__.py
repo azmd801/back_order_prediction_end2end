@@ -99,9 +99,12 @@ TUNED_PARAMS_OF_MODEL = 'params'
 """
 Model evaluation ralated constant 
 """
-MODEL_EVALUATION_DIR_NAME: str = "model_evaluation"
+
 MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE: float = 0.02
-MODEL_EVALUATION_REPORT_NAME= "report.yaml"
+
+MODEL_PUSHER_BUCKET_NAME = TRAINING_BUCKET_NAME
+
+MODEL_PUSHER_S3_KEY = "model-registry"
 
 """
 Model pusher ralated constant 

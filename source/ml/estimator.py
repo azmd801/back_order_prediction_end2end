@@ -5,16 +5,23 @@ from sklearn.pipeline import Pipeline
 from source.constants.training_pipeline import MODEL_FILE_NAME,SAVED_MODEL_DIR
 from source.exception import BackOrderException
 from source.logger import logging
+import numpy as np
 
 
 class BackOrderPredictionModel:
-    def __init__(self, preprocessing_object: Pipeline, trained_model_object: object):
+    def __init__(
+            self, preprocessing_object: Pipeline, 
+            trained_model_object: object,
+            label_encoder_object: object
+            ):
         self.preprocessing_object = preprocessing_object
 
         self.trained_model_object = trained_model_object
 
+        self.label_encoder_object = label_encoder_object
+
     def predict(self, dataframe: DataFrame) -> DataFrame:
-        logging.info("Entered predict method of SensorTruckModel class")
+        logging.info("Entered predict method of BackOrderPredictionModel class")
 
         try:
             logging.info("Using the trained model to get predictions")
@@ -27,6 +34,17 @@ class BackOrderPredictionModel:
 
         except Exception as e:
             raise BackOrderException(e, sys) from e
+        
+    def get_original_labels(self,prediction_array: np.array) -> np.array:
+        try:
+            logging.info('get_original_labels')
+
+            original_labels = self.label_encoder_object.inverse_transform(prediction_array)
+
+            return original_labels
+        
+        except Exception as e:
+            raise BackOrderException(e, sys) from e
 
     def __repr__(self):
         return f"{type(self.trained_model_object).__name__}()"
@@ -35,38 +53,3 @@ class BackOrderPredictionModel:
         return f"{type(self.trained_model_object).__name__}()"
 
 
-class ModelResolver:
-
-    def __init__(self,model_dir=SAVED_MODEL_DIR):
-        try:
-            self.model_dir = model_dir
-
-        except Exception as e:
-            raise e
-
-    def get_best_model_path(self,)->str:
-        try:
-            timestamps = list(map(int,os.listdir(self.model_dir)))
-            latest_timestamp = max(timestamps)
-            latest_model_path= os.path.join(self.model_dir,f"{latest_timestamp}",MODEL_FILE_NAME)
-            return latest_model_path
-        except Exception as e:
-            raise e
-
-    def is_model_exists(self)->bool:
-        try:
-            if not os.path.exists(self.model_dir):
-                return False
-
-            timestamps = os.listdir(self.model_dir)
-            if len(timestamps)==0:
-                return False
-            
-            latest_model_path = self.get_best_model_path()
-
-            if not os.path.exists(latest_model_path):
-                return False
-
-            return True
-        except Exception as e:
-            raise e

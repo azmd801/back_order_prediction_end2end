@@ -3,7 +3,8 @@ from source.logger import logging
 
 from source.entity.artifact_entity import (
     DataValidationArtifact,ModelTrainerArtifact,
-    ModelEvaluationArtifact,DataTransformationArtifact
+    ModelEvaluationArtifact,DataTransformationArtifact,
+    ClassificationMetricArtifact  
     )
 
 from source.entity.config_entity import ModelEvaluationConfig
@@ -11,10 +12,10 @@ import os,sys
 from source.ml.metric import calculate_metric
 from source.ml.estimator import BackOrderPredictionModel
 from source.utils import save_object,load_object,write_yaml_file
-from source.ml.estimator import ModelResolver
-from source.constants.training_pipeline import TARGET_COLUMN
+from source.ml.s3_estimator import BackOrderEstimator
+from source.constants.training_pipeline import *
 import pandas  as  pd
-
+from typing import Optional
 
 class ModelEvaluation:
 
@@ -31,75 +32,74 @@ class ModelEvaluation:
             self.data_transformation_artifact=data_transformation_artifact
         except Exception as e:
             raise BackOrderException(e,sys)
-    
+        
+    def get_best_model(self) -> Optional[BackOrderEstimator]:
+        try:
+            bucket_name = self.model_eval_config.bucket_name
 
+            model_path = self.model_eval_config.s3_model_key_path
+
+            back_order_estimator = BackOrderEstimator(
+                bucket_name=bucket_name, model_path=model_path
+            )
+
+            if back_order_estimator.is_model_present(model_path=model_path):
+                return back_order_estimator
+
+            return None
+
+        except Exception as e:
+            raise BackOrderException(e, sys)
+    
+    def evaluate_model(self) -> bool:
+        try:
+            test_df = pd.read_csv(self.data_validation_artifact.valid_test_file_path)
+
+            x, y = test_df.drop(TARGET_COLUMN, axis=1), test_df[TARGET_COLUMN]
+
+            trained_model = load_object(
+                file_path=self.model_trainer_artifact.trained_model_file_path
+            )
+            label_encoder = load_object(
+                file_path=self.data_transformation_artifact.label_encoder_object_file_path
+            )
+
+            y = label_encoder.fit_transform(y)
+
+            trained_model_score : ClassificationMetricArtifact = calculate_metric(trained_model, x, y)
+
+            trained_model_balanced_accuracy = trained_model_score.balanced_accuracy_score
+
+
+            best_model = self.get_best_model()
+
+            if best_model is None:
+                is_model_accepted=True
+
+            else:
+
+                best_model_score = calculate_metric(best_model, x, y)
+
+                best_model_balanced_accuracy = best_model_score.balanced_accuracy_score
+
+                is_model_accepted = trained_model_balanced_accuracy - best_model_balanced_accuracy\
+                      > MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE
+
+                logging.info(f"Trained model balanced accuracy = {trained_model_balanced_accuracy}" )
+                logging.info(f"Previous best model balanced accuracy = {best_model_balanced_accuracy}" )                
+                             
+            return is_model_accepted
+
+        except Exception as e:
+            raise BackOrderException(e, sys)
 
     def initiate_model_evaluation(self)->ModelEvaluationArtifact:
         try:
-            valid_test_file_path = self.data_validation_artifact.valid_test_file_path
 
-            # valid  test file dataframe
-            test_df = pd.read_csv(valid_test_file_path)
-
-            test_target = test_df[TARGET_COLUMN]
-
-            test_df.drop(TARGET_COLUMN,axis=1,inplace=True)
-            
-            train_model_file_path = self.model_trainer_artifact.trained_model_file_path
-            label_encoder_file_path = self.data_transformation_artifact.label_encoder_object_file_path
-           
-            model_resolver = ModelResolver()
-
-            is_model_accepted=True
-
-            if not model_resolver.is_model_exists():
-                model_evaluation_artifact = ModelEvaluationArtifact(
-                    is_model_accepted=is_model_accepted, 
-                    improved_accuracy=None, 
-                    best_model_path=None, 
-                    trained_model_path=train_model_file_path, 
-                    train_model_metric_artifact=self.model_trainer_artifact.test_metric_artifact, 
-                    best_model_metric_artifact=None)
-                
-                logging.info(f"Model evaluation artifact: {model_evaluation_artifact}")
-                
-                return model_evaluation_artifact
-
-            latest_model_path = model_resolver.get_best_model_path()
-
-            latest_model = load_object(file_path=latest_model_path)
-            train_model = load_object(file_path=train_model_file_path)
-
-            label_encoder = load_object(file_path=label_encoder_file_path)
-
-            test_target = label_encoder.fit_transform(test_target)
-            # y_trained_pred = train_model.predict(test_df)
-            # y_latest_pred  =latest_model.predict(test_df)
-
-            trained_metric = calculate_metric(train_model,test_df,test_target)
-            latest_metric = calculate_metric(latest_model,test_df,test_target)
-
-            improved_accuracy = trained_metric.balanced_accuracy_score -latest_metric.balanced_accuracy_score
-            if self.model_eval_config.changed_threshold_score < improved_accuracy:
-                #0.02 < 0.03
-                is_model_accepted=True
-            else:
-                is_model_accepted=False
-
-            
             model_evaluation_artifact = ModelEvaluationArtifact(
-                    is_model_accepted=is_model_accepted, 
-                    improved_accuracy=improved_accuracy, 
-                    best_model_path=latest_model_path, 
-                    trained_model_path=train_model_file_path, 
-                    train_model_metric_artifact=trained_metric, 
-                    best_model_metric_artifact=latest_metric)
+                is_model_accepted = self.evaluate_model()
+            )
 
-            model_eval_report = model_evaluation_artifact.__dict__
-
-            # #save the report
-            # write_yaml_file(self.model_eval_config.report_file_path, model_eval_report)
-            # logging.info(f"Model evaluation artifact: {model_evaluation_artifact}")
             return model_evaluation_artifact
             
         except Exception as e:

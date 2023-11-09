@@ -9,5 +9,6 @@ pyyaml
 scipy
 imblearn
 xgboost
-
+boto3
+mypy-boto3-s3
 -e .

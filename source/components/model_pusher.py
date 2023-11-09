@@ -1,42 +1,49 @@
+import sys
 
+from source.entity.artifact_entity import ModelPusherArtifact, ModelTrainerArtifact
+from source.entity.config_entity import ModelPusherConfig
 from source.exception import BackOrderException
 from source.logger import logging
-from source.entity.artifact_entity import ModelPusherArtifact,ModelTrainerArtifact,ModelEvaluationArtifact
-from source.entity.config_entity import ModelEvaluationConfig,ModelPusherConfig
-import os,sys
-from source.ml.metric import calculate_metric
-from source.utils import save_object,load_object,write_yaml_file
+from source.ml.s3_estimator import BackOrderEstimator
 
-import shutil
 
 class ModelPusher:
+    def __init__(
+        self,
+        model_trainer_artifact: ModelTrainerArtifact,
+        model_pusher_config: ModelPusherConfig,
+    ):
+        self.model_trainer_artifact = model_trainer_artifact
 
-    def __init__(self,
-                model_pusher_config:ModelPusherConfig,
-                model_eval_artifact:ModelEvaluationArtifact):
+        self.model_pusher_config = model_pusher_config
+
+        self.back_order_estimator = BackOrderEstimator(
+            bucket_name=model_pusher_config.bucket_name,
+            model_path=model_pusher_config.s3_model_key_path,
+        )
+
+    def initiate_model_pusher(self) -> ModelPusherArtifact:
+        logging.info("Entered initiate_model_pusher method of ModelTrainer class")
 
         try:
-            self.model_pusher_config = model_pusher_config
-            self.model_eval_artifact = model_eval_artifact
-        except  Exception as e:
-            raise BackOrderException(e, sys)
-    
+            logging.info("Uploading artifacts folder to s3 bucket")
 
-    def initiate_model_pusher(self,)->ModelPusherArtifact:
-        try:
-            trained_model_path = self.model_eval_artifact.trained_model_path
-            
-            #Creating  dir to save model
-            #saved model dir
-            saved_model_path = self.model_pusher_config.saved_model_path
-            os.makedirs(os.path.dirname(saved_model_path),exist_ok=True)
-            shutil.copy(src=trained_model_path, dst=saved_model_path)
+            self.back_order_estimator.save_model(
+                from_file=self.model_trainer_artifact.trained_model_file_path
+            )
 
-            #prepare artifact
-            model_pusher_artifact = ModelPusherArtifact(saved_model_path=saved_model_path)
+            model_pusher_artifact = ModelPusherArtifact(
+                bucket_name=self.model_pusher_config.bucket_name,
+                s3_model_path=self.model_pusher_config.s3_model_key_path,
+            )
+
+            logging.info("Uploaded artifacts folder to s3 bucket")
+
+            logging.info(f"Model pusher artifact: [{model_pusher_artifact}]")
+
+            logging.info("Exited initiate_model_pusher method of ModelTrainer class")
 
             return model_pusher_artifact
-        
-        except  Exception as e:
-            raise BackOrderException(e, sys)
-    
+
+        except Exception as e:
+            raise BackOrderException(e, sys) from e

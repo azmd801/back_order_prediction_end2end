@@ -147,13 +147,13 @@ class TrainPipeline:
             raise BackOrderException(e, sys)
 
 
-    def start_model_pusher(self, model_evaluation_artifact: ModelEvaluationArtifact):
+    def start_model_pusher(self, model_trainer_artifact: ModelTrainerArtifact):
         """
         """
         try:
             model_pusher = ModelPusher(
                 model_pusher_config=self.model_pusher_config,
-                model_eval_artifact = model_evaluation_artifact
+                model_trainer_artifact = model_trainer_artifact
             )
 
             model_pusher_artifact = model_pusher.initiate_model_pusher()
@@ -189,7 +189,9 @@ class TrainPipeline:
 
                 return None   
             
-            model_pusher_artifact = self.start_model_pusher(model_evaluation_artifact)
+            model_pusher_artifact = self.start_model_pusher(
+                model_trainer_artifact=model_trainer_artifact
+            )
 
             logging.info(f"Exiting the training pipeline")         
 

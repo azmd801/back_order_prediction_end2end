@@ -1,3 +1,3 @@
-TRAINING_BUCKET_NAME = "back_order_prediction-model"
+TRAINING_BUCKET_NAME = "back-order-prediction-model"
 
-PREDICTION_BUCKET_NAME = "back_order_prediction-datasource"
+PREDICTION_BUCKET_NAME = "back-order-prediction-data"

@@ -120,25 +120,32 @@ class ModelTrainerConfig:
 
 @dataclass
 class ModelEvaluationConfig:
-    model_evaluation_dir: str = os.path.join(
-        training_pipeline_config.artifact_dir, MODEL_EVALUATION_DIR_NAME
-    )
 
     changed_threshold_score: float = MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE
 
-    report_file_path: str = os.path.join(
-        model_evaluation_dir, MODEL_EVALUATION_REPORT_NAME
-    )
+    bucket_name: str = MODEL_PUSHER_BUCKET_NAME
+
+    s3_model_key_path: str = os.path.join(MODEL_PUSHER_S3_KEY, MODEL_FILE_NAME)
+
+
 
 @dataclass
 class ModelPusherConfig:
+    bucket_name: str = MODEL_PUSHER_BUCKET_NAME
 
-    _timestamp = round(datetime.now().timestamp())
+    s3_model_key_path: str = os.path.join(MODEL_PUSHER_S3_KEY, MODEL_FILE_NAME)
 
-    saved_model_path=os.path.join(
-        SAVED_MODEL_DIR,f"{_timestamp}", MODEL_FILE_NAME
-        )
+@dataclass
+class PredictionPipelineConfig:
+    data_bucket_name: str = prediction_pipeline.PREDICTION_DATA_BUCKET
 
+    data_file_path: str = prediction_pipeline.PREDICTION_INPUT_FILE_NAME
+
+    model_file_path: str = os.path.join(MODEL_PUSHER_S3_KEY, MODEL_FILE_NAME)
+
+    model_bucket_name: str = prediction_pipeline.MODEL_BUCKET_NAME
+
+    output_file_name: str = prediction_pipeline.PREDICTION_OUTPUT_FILE_NAME
 
 
 

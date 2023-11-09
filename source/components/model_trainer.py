@@ -69,9 +69,14 @@ class ModelTrainer:
                 file_path=self.data_transformation_artifact.preprocessor_object_file_path
             )
 
+            label_encoder_obj = load_object(
+                file_path=self.data_transformation_artifact.label_encoder_object_file_path
+            )
+
             backOrder_prediction_model = BackOrderPredictionModel(
                 preprocessing_object=preprocessing_obj,
                 trained_model_object=model,
+                label_encoder_object= label_encoder_obj
             )
 
             logging.info(

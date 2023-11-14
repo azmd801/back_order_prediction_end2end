@@ -26,7 +26,48 @@ from source.logger import logging
 
 
 class TrainPipeline:
+
+    """
+    This class represents the end-to-end training pipeline for the BackOrder prediction model.
+
+    Methods:
+        start_data_ingestion() -> DataIngestionArtifact:
+            Start the data ingestion process and return the data ingestion artifact.
+
+        start_data_validation(data_ingestion_artifact: DataIngestionArtifact) -> DataValidationArtifact:
+            Start the data validation process and return the data validation artifact.
+
+        start_data_transformation(data_validation_artifact: DataValidationArtifact) -> DataTransformationArtifact:
+            Start the data transformation process and return the data transformation artifact.
+
+        start_model_trainer(data_transformation_artifact: DataTransformationArtifact) -> ModelTrainerArtifact:
+            Start the model training process and return the model trainer artifact.
+
+        start_model_evaluation(data_validation_artifact: DataValidationArtifact,
+                               data_transformation_artifact: DataTransformationArtifact,
+                               model_trainer_artifact: ModelTrainerArtifact) -> ModelEvaluationArtifact:
+            Start the model evaluation process and return the model evaluation artifact.
+
+        start_model_pusher(model_trainer_artifact: ModelTrainerArtifact):
+            Start the model pushing process.
+
+        run_pipeline():
+            Run the entire training pipeline.
+
+    Attributes:
+        data_ingestion_config (DataIngestionConfig): Data ingestion configuration.
+        data_validation_config (DataValidationConfig): Data validation configuration.
+        data_transformation_config (DataTransformationConfig): Data transformation configuration.
+        model_trainer_config (ModelTrainerConfig): Model trainer configuration.
+        model_evaluation_config (ModelEvaluationConfig): Model evaluation configuration.
+        model_pusher_config (ModelPusherConfig): Model pusher configuration.
+    """
+
     def __init__(self):
+        """
+        Initialize TrainPipeline instance with default configurations.
+        """
+
         self.data_ingestion_config = DataIngestionConfig()
 
         self.data_validation_config = DataValidationConfig()
@@ -69,6 +110,10 @@ class TrainPipeline:
     def start_data_validation(
         self, data_ingestion_artifact: DataIngestionArtifact
     ) -> DataValidationArtifact:
+        """
+        Start the data validation process.
+        """
+
         logging.info("Entered the start_data_validation method of TrainPipeline class")
 
         try:
@@ -93,6 +138,10 @@ class TrainPipeline:
     def start_data_transformation(
         self, data_validation_artifact: DataValidationArtifact
     ) -> DataTransformationArtifact:
+        """
+        Start the data transformation process.
+        """
+
         try:
             data_transformation = DataTransformation(
                 data_validation_artifact, self.data_transformation_config
@@ -111,6 +160,9 @@ class TrainPipeline:
     def start_model_trainer(
         self, data_transformation_artifact: DataTransformationArtifact
     ) -> ModelTrainerArtifact:
+        """
+        Start the model training process.
+        """
         
         try:
             model_trainer = ModelTrainer(
@@ -131,6 +183,10 @@ class TrainPipeline:
         data_transformation_artifact:DataTransformationArtifact,
         model_trainer_artifact: ModelTrainerArtifact,
     ) -> ModelEvaluationArtifact:
+        """
+        Start the model evaluation process.
+        """
+
         try:
             model_evaluation = ModelEvaluation(
                 model_eval_config=self.model_evaluation_config,
@@ -149,7 +205,9 @@ class TrainPipeline:
 
     def start_model_pusher(self, model_trainer_artifact: ModelTrainerArtifact):
         """
+        Start the model pushing process.
         """
+
         try:
             model_pusher = ModelPusher(
                 model_pusher_config=self.model_pusher_config,
@@ -164,6 +222,10 @@ class TrainPipeline:
             raise BackOrderException(e, sys) 
 
     def run_pipeline(self):
+        """
+        Run the entire training pipeline.
+        """
+        
         try:
             data_ingestion_artifact: DataIngestionArtifact = self.start_data_ingestion()
             

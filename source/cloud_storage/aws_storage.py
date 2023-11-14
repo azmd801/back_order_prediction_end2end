@@ -14,6 +14,10 @@ from source.logger import logging
 
 
 class SimpleStorageService:
+    """
+    SimpleStorageService class for interacting with Amazon S3.
+    """
+
     def __init__(self):
         s3_client = S3Client()
 
@@ -21,7 +25,12 @@ class SimpleStorageService:
 
         self.s3_client = s3_client.s3_client
 
-    def s3_key_path_available(self, bucket_name, s3_key) -> bool:
+    def s3_key_path_available(self, bucket_name: str, s3_key: str) -> bool:
+        """
+        Check if an object exists in the specified S3 bucket
+        with the given key path.
+        """
+
         try:
             bucket = self.get_bucket(bucket_name)
 
@@ -38,20 +47,14 @@ class SimpleStorageService:
         except Exception as e:
             raise BackOrderException(e, sys)
 
-    @staticmethod
     def read_object(
         object_name: str, decode: bool = True, make_readable: bool = False
     ) -> Union[StringIO, str]:
         """
-        Method Name :   read_object
-        Description :   This method reads the object_name object with kwargs
-
-        Output      :   The column name is renamed
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Read the content of an S3 object, optionally decoding it and
+        returning a StringIO for human-readable content.
         """
+
         logging.info("Entered the read_object method of SimpleStorageService class")
 
         try:
@@ -72,15 +75,9 @@ class SimpleStorageService:
 
     def get_bucket(self, bucket_name: str) -> Bucket:
         """
-        Method Name :   get_bucket
-        Description :   This method gets the bucket object based on the bucket_name
-
-        Output      :   Bucket object is returned based on the bucket name
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Get the S3 bucket resource instance for the specified bucket name.
         """
+
         logging.info("Entered the get_bucket method of SimpleStorageService class")
 
         try:
@@ -97,15 +94,9 @@ class SimpleStorageService:
         self, filename: str, bucket_name: str
     ) -> Union[List[object], object]:
         """
-        Method Name :   get_file_object
-        Description :   This method gets the file object from bucket_name bucket based on filename
-
-        Output      :   list of objects or object is returned based on filename
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Get the S3 object(s) corresponding to the specified filename in the bucket
         """
+
         logging.info("Entered the get_file_object method of SimpleStorageService class")
 
         try:
@@ -118,6 +109,8 @@ class SimpleStorageService:
             func = lambda x: x[0] if len(x) == 1 else x
 
             file_objs = func(file_objects)
+
+            logging.info(f"files objec = {file_objs} for debugging")
 
             logging.info(
                 "Exited the get_file_object method of SimpleStorageService class"
@@ -132,15 +125,9 @@ class SimpleStorageService:
         self, model_name: str, bucket_name: str, model_dir: str = None
     ) -> object:
         """
-        Method Name :   load_model
-        Description :   This method loads the model_name model from bucket_name bucket with kwargs
-
-        Output      :   list of objects or object is returned based on filename
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Load a machine learning model from an S3 bucket.
         """
+
         logging.info("Entered the load_model method of SimpleStorageService class")
 
         try:
@@ -167,15 +154,9 @@ class SimpleStorageService:
 
     def create_folder(self, folder_name: str, bucket_name: str) -> None:
         """
-        Method Name :   create_folder
-        Description :   This method creates a folder_name folder in bucket_name bucket
-
-        Output      :   Folder is created in s3 bucket
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Create a folder in the specified S3 bucket.
         """
+
         logging.info("Entered the create_folder method of SimpleStorageService class")
 
         try:
@@ -202,14 +183,8 @@ class SimpleStorageService:
         remove: bool = True,
     ):
         """
-        Method Name :   upload_file
-        Description :   This method uploads the from_filename file to bucket_name bucket with to_filename as bucket filename
-
-        Output      :   Folder is created in s3 bucket
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Upload a file to the specified location in an S3 bucket, optionally removing
+        the local file afterwards.
         """
         logging.info("Entered the upload_file method of SimpleStorageService class")
 
@@ -247,15 +222,9 @@ class SimpleStorageService:
         bucket_name: str,
     ) -> None:
         """
-        Method Name :   upload_df_as_csv
-        Description :   This method uploads the dataframe to bucket_filename csv file in bucket_name bucket
-
-        Output      :   Folder is created in s3 bucket
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Upload a DataFrame as a CSV file to an S3 bucket.
         """
+
         logging.info(
             "Entered the upload_df_as_csv method of SimpleStorageService class"
         )
@@ -274,15 +243,9 @@ class SimpleStorageService:
 
     def get_df_from_object(self, object_: object) -> DataFrame:
         """
-        Method Name :   get_df_from_object
-        Description :   This method gets the dataframe from the object_name object
-
-        Output      :   Folder is created in s3 bucket
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Read a DataFrame from the content of an S3 object.
         """
+
         logging.info(
             "Entered the get_df_from_object method of SimpleStorageService class"
         )
@@ -302,15 +265,9 @@ class SimpleStorageService:
 
     def read_csv(self, filename: str, bucket_name: str) -> DataFrame:
         """
-        Method Name :   get_df_from_object
-        Description :   This method gets the dataframe from the object_name object
-
-        Output      :   Folder is created in s3 bucket
-        On Failure  :   Write an exception log and then raise an exception
-
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Read a CSV file from an S3 bucket and return it as a DataFrame.
         """
+
         logging.info("Entered the read_csv method of SimpleStorageService class")
 
         try:

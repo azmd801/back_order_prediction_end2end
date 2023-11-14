@@ -18,13 +18,35 @@ import pandas  as  pd
 from typing import Optional
 
 class ModelEvaluation:
+    """
+    This class is responsible for evaluating and comparing the trained model's performance.
 
+    Args:
+        model_eval_config (ModelEvaluationConfig): Model evaluation configuration.
+        data_validation_artifact (DataValidationArtifact): Data validation artifact.
+        data_transformation_artifact (DataTransformationArtifact): Data transformation artifact.
+        model_trainer_artifact (ModelTrainerArtifact): Model trainer artifact.
+
+    Methods:
+        get_best_model() -> Optional[BackOrderEstimator]:
+            Retrieve the best model from the specified S3 bucket.
+
+        evaluate_model() -> bool:
+            Evaluate the performance of the trained model and compare it with the best model.
+
+        initiate_model_evaluation() -> ModelEvaluationArtifact:
+            Initiate the model evaluation process and return the model evaluation artifact.
+
+    """
 
     def __init__(self,model_eval_config:ModelEvaluationConfig,
                     data_validation_artifact:DataValidationArtifact,
                     data_transformation_artifact:DataTransformationArtifact,
                     model_trainer_artifact:ModelTrainerArtifact):
-        
+        """
+        Initialize ModelEvaluation instance.
+        """
+
         try:
             self.model_eval_config=model_eval_config
             self.data_validation_artifact=data_validation_artifact
@@ -34,6 +56,10 @@ class ModelEvaluation:
             raise BackOrderException(e,sys)
         
     def get_best_model(self) -> Optional[BackOrderEstimator]:
+        """
+        Retrieve the best model from the specified S3 bucket.
+        """
+
         try:
             bucket_name = self.model_eval_config.bucket_name
 
@@ -44,7 +70,7 @@ class ModelEvaluation:
             )
 
             if back_order_estimator.is_model_present(model_path=model_path):
-                return back_order_estimator
+                return back_order_estimator.load_model()
 
             return None
 
@@ -52,6 +78,10 @@ class ModelEvaluation:
             raise BackOrderException(e, sys)
     
     def evaluate_model(self) -> bool:
+        """
+        Evaluate the performance of the trained model and compare it with the best model in S3.
+        """
+
         try:
             test_df = pd.read_csv(self.data_validation_artifact.valid_test_file_path)
 
@@ -94,6 +124,9 @@ class ModelEvaluation:
             raise BackOrderException(e, sys)
 
     def initiate_model_evaluation(self)->ModelEvaluationArtifact:
+        """
+        Initiate the model evaluation process and return the model evaluation artifact.
+        """
         try:
 
             model_evaluation_artifact = ModelEvaluationArtifact(

@@ -25,6 +25,25 @@ from sklearn.preprocessing import StandardScaler,OneHotEncoder,LabelEncoder
 
 
 class DataTransformation:
+    """
+    Class for transforming and preparing data for model training.
+
+    Attributes:
+        data_validation_artifact (DataValidationArtifact): Artifact containing file paths for validation datasets.
+        data_transformation_config (DataTransformationConfig): Configuration for data transformation.
+
+    Methods:
+        read_data(file_path) -> pd.DataFrame:
+            Read data from the specified file path into a DataFrame.
+
+        get_data_transformer_object() -> Pipeline:
+            Get the data transformer object based on schema configuration.
+
+        initiate_data_transformation() -> DataTransformationArtifact:
+            Initiate the data transformation process, including feature engineering and saving artifacts.
+    """
+
+
     def __init__(
         self,
         data_validation_artifact: DataValidationArtifact,
@@ -32,10 +51,9 @@ class DataTransformation:
         
     ):
         """
-
-        :param data_validation_artifact: Output reference of data ingestion artifact stage
-        :param data_transformation_config: configuration for data transformation
+        Initialize the DataTransformation instance.
         """
+
         try:
             self.data_validation_artifact = data_validation_artifact
 
@@ -48,6 +66,10 @@ class DataTransformation:
         
     @staticmethod
     def read_data(file_path) -> pd.DataFrame:
+        """
+        Read data from the specified file path into a DataFrame.
+        """
+
         try:
             return pd.read_csv(file_path)
 
@@ -58,8 +80,9 @@ class DataTransformation:
 
     def get_data_transformer_object(self) -> Pipeline:
         """
-        :return: Pipeline object to transform dataset
+        Get the data transformer object based on schema configuration.
         """
+
         logging.info(
             "Entered get_data_transformer_object method of DataTransformation class"
         )
@@ -134,6 +157,10 @@ class DataTransformation:
 
 
     def initiate_data_transformation(self,) -> DataTransformationArtifact:
+        """
+        Initiate the data transformation process, including feature engineering and saving artifacts.
+        """
+        
         try:
             logging.info("Starting data transformation")
 
@@ -144,11 +171,11 @@ class DataTransformation:
             # getting train and test data set
             train_df = DataTransformation.read_data(
                 self.data_validation_artifact.valid_train_file_path
-            )[:1000]#for testing purpos only
+            )
 
             test_df = DataTransformation.read_data(
                 file_path=self.data_validation_artifact.valid_test_file_path
-            )[:1000]#for testing purpose only
+            )
 
             # dropping unnecessary features
             logging.info("dropping unnecessary features from train data set")

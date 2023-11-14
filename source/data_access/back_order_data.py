@@ -15,8 +15,6 @@ class BackOrderData:
     """
 
     def __init__(self):
-        """
-        """
         try:
             self.mongo_client = MongoDBClient(database_name=DATABASE_NAME)
 
@@ -37,9 +35,7 @@ class BackOrderData:
             else:
                 collection = self.mongo_client[database_name][collection_name]
 
-            # df = pd.DataFrame(list(collection.find()))
-
-            df = pd.DataFrame(list(collection.find().limit(10000)))
+            df = pd.DataFrame(list(collection.find()))
 
             if "_id" in df.columns.to_list():
                 df = df.drop(columns=["_id"], axis=1)

@@ -10,6 +10,30 @@ from source.constants.env_variable import (
 
 
 class S3Client:
+
+    """
+    S3Client class for managing Amazon S3 connections.
+
+    Attributes:
+        s3_client: Boto3 S3 client instance.
+        s3_resource: Boto3 S3 resource instance.
+
+    Methods:
+        __init__(region_name: str = REGION_NAME) -> None:
+            Initializes the S3Client with the specified AWS region.
+
+    Example usage:
+    ```
+    s3_client = S3Client(region_name="us-west-2")
+    bucket_list = s3_client.s3_resource.buckets.all()
+    ```
+
+    Note:
+    - AWS credentials are obtained from the environment variables: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+    - If credentials are not set, an exception is raised during initialization.
+    - The initialized S3 client and resource instances are shared among all instances of the S3Client class.
+    """
+    
     s3_client = None
     s3_resource = None
 

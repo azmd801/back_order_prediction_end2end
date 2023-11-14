@@ -7,22 +7,50 @@ from pandas import DataFrame
 from source.cloud_storage.aws_storage import SimpleStorageService
 from source.constants.training_pipeline import SCHEMA_FILE_PATH
 from source.entity.config_entity import PredictionPipelineConfig
-from source.exception import sourceException
+from source.exception import BackOrderException
 from source.logger import logging
-from source.ml.estimator import TargetValueMapping
-from source.ml.s3_estimator import sourceEstimator
+from source.ml.s3_estimator import BackOrderEstimator
 from source.utils import read_yaml_file
 from source.ml.pre_processing import drop_columns
 
 
 class PredictionPipeline:
+    """
+    PredictionPipeline is a class that handles the prediction pipeline for back order prediction.
+
+    Attributes:
+        prediction_pipeline_config (PredictionPipelineConfig):
+            Configuration for the prediction pipeline.
+        s3 (SimpleStorageService):
+            An instance of SimpleStorageService for handling interactions with Amazon S3.
+
+
+    Methods:
+        get_data():
+            Retrieve prediction data from an S3 bucket.
+
+        get_model():
+            Load the prediction model from an S3 bucket.
+
+        predict(model, dataframe):
+            Make predictions using the provided model and input data.
+
+        get_labels(model, prediction_array):
+            Get the original labels from the model.
+
+        initiate_prediction():
+            Initiate the prediction pipeline.
+
+    """
+
     def __init__(
         self,
         prediction_pipeline_config: PredictionPipelineConfig = PredictionPipelineConfig(),
     ) -> None:
         """
-        :param prediction_pipeline_config:
+        Initialize the PredictionPipeline.
         """
+
         try:
 
             self.prediction_pipeline_config = prediction_pipeline_config
@@ -30,11 +58,14 @@ class PredictionPipeline:
             self.s3 = SimpleStorageService()
 
         except Exception as e:
-            raise sourceException(e, sys)
+            raise (BackOrderException, sys)
 
     def get_data(self) -> DataFrame:
+        """
+        Retrieve prediction data from an S3 bucket.
+        """
         try:
-            logging.info("Entered get_data method of sourceData class")
+            logging.info("Entered get_data method of PredictionPipeline class")
 
             prediction_df = self.s3.read_csv(
                 filename=self.prediction_pipeline_config.data_file_path,
@@ -43,50 +74,84 @@ class PredictionPipeline:
 
             logging.info("Read prediction csv file from s3 bucket")
 
-            prediction_df = drop_columns(prediction_df)
+            logging.info(f"prediction_df \n\n:{prediction_df}")
 
-            logging.info("Dropped the required columns")
+            # prediction_df = drop_columns(prediction_df)
 
-            logging.info("Exited the get_data method of sourceData class")
+            # logging.info("Dropped the required columns")
+
+            logging.info("Exited the get_data method of PredictionPipeline class")
 
             return prediction_df
 
         except Exception as e:
-            raise sourceException(e, sys)
+            raise BackOrderException(e, sys)
+        
+    def get_model(self) -> object:
+        """
+        Load the prediction model from an S3 bucket.
+        """
 
-    def predict(self, dataframe) -> np.ndarray:
         try:
-            logging.info("Entered predict method of sourceData class")
+            logging.info("Entered predict method of PredictionPipeline class")
 
-            model = sourceEstimator(
+            back_order_estimator = BackOrderEstimator(
                 bucket_name=self.prediction_pipeline_config.model_bucket_name,
                 model_path=self.prediction_pipeline_config.model_file_path,
             )
 
+            model = back_order_estimator.load_model()
+            return model
+            
+        except Exception as e:
+            raise BackOrderException(e, sys)            
+
+    def predict(self,model, dataframe) -> np.ndarray:
+        """
+        Make predictions using the provided model and input data.
+        """
+
+        try:
+            logging.info("Entered predict method of PredictionPipeline class")
+
             return model.predict(dataframe)
 
         except Exception as e:
-            raise sourceException(e, sys)
+            raise BackOrderException(e, sys)
         
-    def get_labels(self):
+    def get_labels(self,model,prediction_array) -> np.ndarray:
+        """
+        Get the original labels from the model.
+        """
+
         try:
-            pass
+            logging.info("Entered get_labels method of PredictionPipeline class")
+
+            return model.get_original_labels(prediction_array)
 
         except Exception as e:
-            raise sourceException(e, sys)
+            raise BackOrderException(e, sys)
 
 
     def initiate_prediction(self,) -> None:
+        """
+        Initiate the prediction pipeline.
+        """
+        
         try:
+            logging.info("Starting prediction pipeline")
+
             dataframe = self.get_data()
+            
+            model = self.get_model()
 
-            predicted_arr = self.predict(dataframe)
+            predicted_arr = self.predict(model,dataframe)
 
-            prediction = pd.DataFrame(list(predicted_arr))
+            predicted_labels = self.get_labels(model,predicted_arr)
+
+            prediction = pd.DataFrame(list(predicted_labels))
 
             prediction.columns = ["class"]
-
-            prediction.replace(TargetValueMapping().reverse_mapping(), inplace=True)
 
             predicted_dataframe = pd.concat([dataframe, prediction], axis=1)
 
@@ -99,7 +164,9 @@ class PredictionPipeline:
 
             logging.info("Uploaded artifacts folder to s3 bucket_name")
 
-            logging.info(f"File has uploaded to {predicted_dataframe}")
+            logging.info(f"File has uploaded to\n\n {predicted_dataframe}")
+
+            logging.info(f"Exiting prediction pipeline")
 
         except Exception as e:
-            raise sourceException(e, sys)
+            raise BackOrderException(e, sys)

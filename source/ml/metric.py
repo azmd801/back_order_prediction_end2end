@@ -8,9 +8,12 @@ from source.entity.artifact_entity import ClassificationMetricArtifact
 
 def calculate_metric(model, x, y) -> ClassificationMetricArtifact:
     """
-    model: estimator
-    x: input feature
-    y: output feature
+    Calculates classification metrics for a given model and input features.
+
+    Args:
+        model (estimator): The classification model to evaluate.
+        x: Input features.
+        y: True labels
     """
     yhat = model.predict(x)
 

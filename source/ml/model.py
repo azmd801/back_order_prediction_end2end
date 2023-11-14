@@ -8,7 +8,25 @@ from source.utils import read_yaml_file
 
 
 class TunedModel:
+    """Manager class for dynamically initializing a tuned machine learning model.
+
+    This class reads a model configuration from a YAML file, extracts the necessary information,
+    and dynamically instantiates a machine learning model based on the provided configuration.
+
+    Attributes:
+        config (dict): Model configuration loaded from a YAML file.
+
+    Methods:
+        initiate_model() -> object:
+            Dynamically initializes and returns a tuned machine learning model based on the configuration.
+            The configuration specifies the module, class, and tuned parameters for the model instantiation.
+    """
+
     def __init__(self):
+        """
+        Initialize the TunedModel instance.
+        """
+
         try:
             self.config = read_yaml_file(MODEL_CONFIG_FILE_PATH)
             logging.info(f"Loaded model configuration")
@@ -17,6 +35,10 @@ class TunedModel:
             
     
     def initiate_model(self):
+        """
+        Dynamically initializes and returns a tuned machine learning model based on the configuration.
+        """
+        
         model_config = self.config.get('model', {})
         
         

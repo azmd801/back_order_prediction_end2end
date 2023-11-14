@@ -14,12 +14,32 @@ from source.utils import read_yaml_file
 
 
 class DataIngestion:
+    """
+    Class for ingesting data from MongoDB, exporting it to a feature store, 
+    and splitting it into training and testing datasets.
+
+    Attributes:
+        data_ingestion_config (DataIngestionConfig): Configuration for data ingestion.
+
+    Methods:
+        export_data_into_feature_store() -> DataFrame:
+            Export data from MongoDB to a feature store file.
+
+        split_data_as_train_test(dataframe: DataFrame) -> None:
+            Split the given dataframe into training and testing datasets and export them.
+
+        initiate_data_ingestion() -> DataIngestionArtifact:
+            Initiates the data ingestion process, including exporting and splitting data.
+    """
+
+
     def __init__(
         self, data_ingestion_config: DataIngestionConfig = DataIngestionConfig()
     ):
         """
-
+        Initialize the DataIngestion instance
         """
+
         try:
             self.data_ingestion_config = data_ingestion_config
 
@@ -27,6 +47,10 @@ class DataIngestion:
             raise BackOrderException(e, sys)
 
     def export_data_into_feature_store(self) -> DataFrame:
+        """
+        Export data from MongoDB to a feature store file.
+        """
+
         try:
             logging.info(f"Exporting data from mongodb")
 
@@ -57,15 +81,9 @@ class DataIngestion:
         
     def split_data_as_train_test(self, dataframe: DataFrame) -> None:
         """
-        Method Name :   split_data_as_train_test
-        Description :   This method splits the dataframe into train set and test set based on split ratio 
-        
-        Output      :   Folder is created in s3 bucket
-        On Failure  :   Write an exception log and then raise an exception
-        
-        Version     :   1.2
-        Revisions   :   moved setup to cloud
+        Split the given dataframe into training and testing datasets and export them.
         """
+
         logging.info("Entered split_data_as_train_test method of Data_Ingestion class")
 
         try:
@@ -100,8 +118,9 @@ class DataIngestion:
 
     def initiate_data_ingestion(self) -> DataIngestionArtifact:
         """
-        
+        Initiates the data ingestion process, including exporting and splitting data.
         """
+        
         logging.info("Entered initiate_data_ingestion method of Data_Ingestion class")
         try: 
             if not (os.path.isfile(self.data_ingestion_config.training_file_path) and \

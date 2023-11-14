@@ -18,16 +18,37 @@ from source.ml.metric import calculate_metric
 
 
 class ModelTrainer:
+    """
+    This class is responsible for training and saving the best predictive model.
+
+    Args:
+        data_transformation_artifact (DataTransformationArtifact): Data transformation artifact.
+        model_trainer_config (ModelTrainerConfig): Model trainer configuration.
+
+    Methods:
+        initiate_model_trainer() -> ModelTrainerArtifact:
+            Initiate the model training process and return the model trainer artifact.
+
+    """
+
     def __init__(
         self,
         data_transformation_artifact: DataTransformationArtifact,
         model_trainer_config: ModelTrainerConfig,
     ):
+        """
+        Initialize ModelTrainer instance.
+        """
+
         self.data_transformation_artifact = data_transformation_artifact
 
         self.model_trainer_config = model_trainer_config
 
     def initiate_model_trainer(self,) -> ModelTrainerArtifact:
+        """
+        Initiate the model training process and return the model trainer artifact.
+        """
+        
         logging.info("Entered initiate_model_trainer method of ModelTrainer class")
 
         try:

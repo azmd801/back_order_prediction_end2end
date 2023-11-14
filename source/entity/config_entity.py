@@ -13,8 +13,7 @@ TIMESTAMP: str = datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
 class TrainingPipelineConfig:
     pipeline_name: str = PIPELINE_NAME
 
-    artifact_dir: str = os.path.join(ARTIFACT_DIR, TIMESTAMP) # cooomented for testing    
-    # artifact_dir: str = os.path.join(ARTIFACT_DIR,"code_testing") # will be removed during release
+    artifact_dir: str = os.path.join(ARTIFACT_DIR, TIMESTAMP)
 
     timestamp: str = TIMESTAMP
 

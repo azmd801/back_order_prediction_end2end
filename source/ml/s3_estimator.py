@@ -9,15 +9,14 @@ from source.ml.estimator import BackOrderPredictionModel
 
 class BackOrderEstimator:
     """
-    This class is used to save and retrieve  model in s3 bucket and to do prediction
+    This class is used to save and retrieve a model in an S3 bucket and perform predictions.
     """
 
     def __init__(
         self, bucket_name, model_path,
     ):
         """
-        :param bucket_name: Name of your model bucket
-        :param model_path: Location of your model in bucket
+
         """
         self.bucket_name = bucket_name
 
@@ -27,7 +26,11 @@ class BackOrderEstimator:
 
         self.loaded_model: BackOrderPredictionModel = None
 
-    def is_model_present(self, model_path):
+
+    def is_model_present(self, model_path: str) -> bool:
+        """
+        Check if the model is present in the specified S3 bucket.
+        """
         try:
             return self.s3.s3_key_path_available(
                 bucket_name=self.bucket_name, s3_key=model_path
@@ -40,18 +43,16 @@ class BackOrderEstimator:
 
     def load_model(self,) -> BackOrderPredictionModel:
         """
-        Load the model from the model_path
-        :return:
+        Load the model from the specified S3 bucket.
         """
+
         return self.s3.load_model(self.model_path, bucket_name=self.bucket_name)
 
     def save_model(self, from_file, remove: bool = False) -> None:
         """
-        Save the model to the model_path
-        :param from_file: Your local system model path
-        :param remove: By default it is false that mean you will have your model locally available in your system folder
-        :return:
+        Save the model to the specified S3 bucket.
         """
+        
         try:
             self.s3.upload_file(
                 from_file,
@@ -63,14 +64,4 @@ class BackOrderEstimator:
         except Exception as e:
             raise BackOrderException(e, sys)
 
-    def predict(self, dataframe: DataFrame):
-        """
-        :param dataframe:
-        :return:
-        """
-        try:
-            if self.loaded_model is None:
-                self.loaded_model = self.load_model()
-            return self.loaded_model.predict(dataframe=dataframe)
-        except Exception as e:
-            raise BackOrderException(e, sys)
+    

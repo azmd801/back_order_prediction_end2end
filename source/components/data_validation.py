@@ -15,11 +15,44 @@ from source.utils import read_yaml_file, write_yaml_file
 
 
 class DataValidation:
+    """
+    This class is responsible for validating the data based on a predefined schema.
+
+    Args:
+        data_ingestion_artifact (DataIngestionArtifact): Data ingestion artifact.
+        data_validation_config (DataValidationConfig): Data validation configuration.
+
+    Raises:
+        BackOrderException: If an exception occurs during initialization.
+
+    Methods:
+        read_data(file_path: str) -> pd.DataFrame:
+            Read data from a CSV file.
+
+        validate_number_of_columns(dataframe: pd.DataFrame) -> bool:
+            Validate the number of columns in the dataframe.
+
+        is_numerical_column_exist(df: pd.DataFrame) -> bool:
+            Check if numerical columns are present in the dataframe.
+
+        is_categorical_column_exist(df: pd.DataFrame) -> bool:
+            Check if categorical columns are present in the dataframe.
+
+        detect_dataset_drift():
+            Detect dataset drift.
+
+        initiate_data_validation() -> DataValidationArtifact:
+            Initiate data validation.
+    """
+
     def __init__(
         self,
         data_ingestion_artifact: DataIngestionArtifact,
         data_validation_config: DataValidationConfig,
     ):
+        """
+        Initialize DataValidation instance.
+        """
         try:
             self.data_ingestion_artifact = data_ingestion_artifact
             self.data_validation_config = data_validation_config
@@ -30,6 +63,9 @@ class DataValidation:
 
     @ staticmethod
     def read_data(file_path) -> pd.DataFrame:
+        """
+        Read data from a CSV file.
+        """
         try:
             return pd.read_csv(file_path)
         except Exception as e:
@@ -37,10 +73,9 @@ class DataValidation:
 
     def validate_number_of_columns(self, dataframe: DataFrame) -> bool:
         """
-
-        :param dataframe:
-        :return: True if required columns present
+        Validate the number of columns in the dataframe.
         """
+
         try:
             status = len(dataframe.columns) == len(self._schema_config["columns"])
 
@@ -53,10 +88,9 @@ class DataValidation:
 
     def is_numerical_column_exist(self, df: DataFrame) -> bool:
         """
-        This function check numerical column is present in dataframe or not
-        :param df:
-        :return: True if all column presents else False
+        Check if required numerical columns are present in the dataframe.
         """
+
         try:
             dataframe_columns = df.columns
 
@@ -79,10 +113,9 @@ class DataValidation:
 
     def is_categorical_column_exist(self,df) -> bool:
         """
-        This function check categorical column is present in dataframe or not
-        :param df:
-        :return: True if all column presents else False
+        Check if required categorical columns are present in the dataframe.
         """
+        
         try:
             dataframe_columns = df.columns
 
@@ -108,13 +141,9 @@ class DataValidation:
 
     def initiate_data_validation(self) -> DataValidationArtifact:
         """
-        Method Name :   initiate_data_validation
-        Description :   This method initiates the data validation component for the pipeline
-        
-        Output      :   Returns bool value based on validation results
-        On Failure  :   Write an exception log and then raise an exception
-
+        Initiate data validation.
         """
+
         try:
             validation_error_msg = ""
 

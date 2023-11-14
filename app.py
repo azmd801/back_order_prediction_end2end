@@ -1,5 +1,5 @@
 """
-This code is adapted from the ineuron.cls
+This code is adapted from the ineuron Senor Fault detection project
 """
 
 from fastapi import FastAPI

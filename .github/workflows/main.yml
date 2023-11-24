@@ -88,7 +88,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPO }}
           IMAGE_TAG: latest
         run: |
-         docker pull $ECR_REGISTRY:/$ECR_REPOSITORY:$IMAGE_TAG
+         docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
          
       # - name: Stop and remove  container if running
       #   run: |

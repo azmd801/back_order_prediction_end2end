@@ -49,7 +49,7 @@ jobs:
         run: |
          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
          
-         docker run -d -p 8000:8080  342669873472.dkr.ecr.ap-south-1.amazonaws.com/back_order_prediction:latest
+         docker run -d -p 8000:8080  "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
       # - name: Clean previous images and containers
       #   run: |
       #    docker system prune -f

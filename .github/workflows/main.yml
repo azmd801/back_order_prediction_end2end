@@ -49,7 +49,7 @@ jobs:
         run: |
          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
          
-         docker run -d -p 8010:8080  "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
-      # - name: Clean previous images and containers
-      #   run: |
-      #    docker system prune -f
+         docker run -d -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"  -e MONGODB_URL="${{ secrets.MONGODB_URL }}" -p 8080:8080 "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
+      - name: Clean previous images and containers
+        run: |
+         docker system prune -f

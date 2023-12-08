@@ -36,8 +36,9 @@ For this problem Accurately predicting both classes is essential.False positives
 
 ## How to run?
 
-Before we run the project, make sure that you are having MongoDB in your local system, with Compass since we are using MongoDB for data storage. You also need AWS account to access the service like S3, ECR and EC2 instances.
-
+Before we run the project, make sure that you are having MongoDB in your local system, with Compass since we are using MongoDB for data storage. You also need AWS account to access the service like S3, ECR and EC2 instances. 
+Refer this link: https://github.com/azmd801/back_order_prediction_end2end/blob/main/cloud_setup/AWS_setup.md
+for setting up AWS services
 
 ### Step 1: Clone the repository
 

@@ -114,3 +114,102 @@ docker build -t sensor .
 ```
 docker run -d -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" -e AWS_DEFAULT_REGION="${{ secrets.AWS_DEFAULT_REGION }}" -e MONGODB_URL="${{ secrets.MONGODB_URL }}" -p 8080:8080 sensor
 ```
+## Run on cloud
+First you need to set AWS EC2 maching and create ECR repository. Refer this [link](https://github.com/azmd801/back_order_prediction_end2end/blob/main/cloud_setup/AWS_setup.md) for performing the setup  
+
+
+### Launch EC2 CLI
+Follow these steps to access and connect to your running instance on AWS EC2:
+
+1. **Navigate to the AWS Management Console:**
+   Open your web browser and go to the [AWS Management Console](https://aws.amazon.com/). Log in with your AWS account credentials.
+
+2. **Access EC2 Console:**
+   In the navigation pane, select "EC2" to access the Elastic Compute Cloud console.
+
+3. **View Instances:**
+   Click on "Instances" to see a list of your instances.
+
+4. **Identify Running Instance:**
+   Locate the specific running instance you want to connect to. Click on its instance ID to access its details.
+
+5. **Connect to the Instance:**
+   Within the instance details, find and click on the "Connect" button. This action will open the EC2 CLI interface, providing you with connection details and options.
+
+Now that you have connected to your EC2 instance, you can proceed to install Docker on the machine.
+
+## Install Docker on the EC2 Machine
+
+Follow these steps to install Docker on your EC2 machine:
+
+```bash
+# Install Docker using the apt repository
+# Set up Docker's apt repository
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Add the repository to Apt sources
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+# Install Docker packages
+# For the latest version
+```sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin```
+
+# Verify Docker installation
+```sudo docker run hello-world```
+
+# Add your user to the "docker" group to run Docker commands without sudo
+```sudo usermod -aG docker $USER```
+
+# Restart the Docker service to apply the changes
+sudo systemctl restart docker
+```
+
+## Deploy using github actions
+github actions allows us to automate deployment using CI/CD pipeline
+
+
+### 1. Add GitHub Actions Workflow File:
+
+- Inside your repository, create a new file named `.github/main.yml`.
+- Edit the `main.yml` file and add instructions for Dockerizing and shipping the image to ECR, and pulling it on an EC2 machine. You can use the sample workflow provided earlier.
+
+### 4. Configure GitHub Actions Workflow:
+
+- Customize the workflow file by replacing placeholders with your specific details (e.g., AWS credentials, ECR details, Dockerfile location).
+- Commit and push the changes to trigger the workflow.
+
+### 5. Go to Repository Settings:
+
+- In your GitHub repository, navigate to the "Settings" tab.
+
+### 5. Add Secrets:
+
+- In the left sidebar, click on "Secrets."
+- Click on "New repository secret."
+- Create secrets for your AWS credentials, ECR details, and any other sensitive information used in your workflow.
+
+### 6. Create a Self-Hosted Runner:
+
+- Go to the "Actions" tab in your repository.
+- Click on "New runner" to set up a self-hosted runner.
+- Follow the instructions to download and configure the runner on your EC2 machine.
+
+### 7. Start Self-Hosted Runner:
+
+- On your EC2 machine, navigate to the folder where you extracted the self-hosted runner files.
+- Run `./svc.sh install` to install the runner as a service.
+- Run `./svc.sh start` to start the self-hosted runner.
+
+### 8. Verify Workflow Execution:
+
+- Make a change to your code and push it to the repository.
+- Check the "Actions" tab to see the progress of the workflow.
+- The workflow should automatically trigger, dockerize your application, push the image to ECR, and pull it on your EC2 machine.
